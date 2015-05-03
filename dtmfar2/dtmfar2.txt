@@ -1,0 +1,276 @@
+#include <SD.h>                      // need to include the SD library
+//#define SD_ChipSelectPin 53  //example uses hardware SS pin 53 on Mega2560
+#define SD_ChipSelectPin 10  //using digital pin 4 on arduino nano 328
+#include <TMRpcm.h>           //  also need to include this library...
+#include <SPI.h>
+
+TMRpcm tmrpcm;   // create an object for use in this sketch
+char mychar;
+//----------------------------------------------
+
+int vala;
+int valb;
+int valc;
+int vald;
+
+int indikator;
+
+String gabung(16);
+
+//TONE**************************
+// DTMF (Dual Tone Multiple Frequency) Demonstration
+
+// http://en.wikipedia.org/wiki/Dual-tone_multi-frequency
+
+// To mix the output of the signals to output to a small speaker (i.e. 8 Ohms or higher),
+// simply use 1K Ohm resistors from each output pin and tie them together at the speaker.
+// Don't forget to connect the other side of the speaker to ground!
+
+#include <Tone.h>
+
+int ptt=8;
+int buttonPin = 0;
+int pinCekAliranAir = 1;
+int aliranAir;
+int radar;
+boolean currentState = LOW;//stroage for current button state
+boolean lastState = LOW;//storage for last button state
+
+Tone freq1;
+Tone freq2;
+
+const int DTMF_freq1[] = { 1336, 1209, 1336, 1477, 1209, 1336, 1477, 1209, 1336, 1477, 1633 };
+const int DTMF_freq2[] = {  941,  697,  697,  697,  770,  770,  770,  852,  852,  852, 941 };
+//TONE**************************
+
+void setup() {
+  //------------------------------------------------------------------------------------------------------------
+  tmrpcm.speakerPin = 9; //11 on Mega, 9 on Uno, Nano, etc
+
+  Serial.begin(115200);
+  if (!SD.begin(SD_ChipSelectPin)) {  // see if the card is present and can be initialized:
+    Serial.println("SD fail");  
+    return;   // don't do anything more if not
+  }
+  ///tmrpcm.play("REC006.wav"); //the sound file "music" will play each time the arduino powers up, or is reset
+  ///Serial.println("REC006.wav");  
+  //-----------------------------------------------------------------------------------------------------------
+  
+  
+  gabung="";
+  
+  pinMode(2, INPUT);
+  pinMode(3, INPUT);
+  pinMode(4, INPUT);
+  pinMode(5, INPUT);
+  
+  pinMode(7, INPUT);
+  pinMode(8, OUTPUT);
+  digitalWrite(8, HIGH);
+  digitalWrite(7, LOW);
+  digitalWrite(buttonPin, LOW);
+  
+  //TONE**************************
+  pinMode(buttonPin, INPUT);//this time we will set the pin as INPUT
+  pinMode(ptt, OUTPUT);
+  freq1.begin(16);
+  freq2.begin(17);
+  //TONE**************************
+}
+
+void loop()
+{
+    indikator = digitalRead(7);
+    
+    if(indikator==1){
+      readdtmf();
+      
+        vala = digitalRead(5);
+        valb = digitalRead(4);
+        valc = digitalRead(3);
+        vald = digitalRead(2);
+
+            if (vala==LOW && valb==LOW && valc==LOW && vald==HIGH) {
+                gabung = gabung + "1";
+            }
+
+            if (vala==LOW && valb==LOW && valc==HIGH && vald==LOW) {
+               gabung = gabung + "2";
+            }
+
+            if (vala==LOW && valb==LOW && valc==HIGH && vald==HIGH) {
+                 gabung = gabung + "3";
+            }
+
+            if (vala==LOW && valb==HIGH && valc==LOW && vald==LOW) {
+               gabung = gabung + "4";
+            }
+            
+            if (vala==LOW && valb==HIGH && valc==LOW && vald==HIGH) {
+               gabung = gabung + "5";
+            }
+      
+            if (vala==LOW && valb==HIGH && valc==HIGH && vald==LOW) {
+               gabung = gabung + "6";
+            }
+            if (vala==LOW && valb==HIGH && valc==HIGH && vald==HIGH) {
+               gabung = gabung + "7";
+            }
+            if (vala==HIGH && valb==LOW && valc==LOW && vald==LOW) {
+               gabung = gabung + "8";
+            }
+            if (vala==HIGH && valb==LOW && valc==LOW && vald==HIGH) {
+               gabung = gabung + "9";
+            }
+            if (vala==HIGH && valb==LOW && valc==HIGH && vald==LOW) {
+               gabung = gabung + "0";
+            }
+      
+      
+            if (vala==HIGH && valb==HIGH && valc==LOW && vald==LOW) {
+                if(gabung=="1"){
+                  //delay(600);
+                  digitalWrite(ptt, LOW);
+                  delay(1000);
+                  tmrpcm.play("10.wav");
+                  Serial.println("10.wav");
+                  delay(1000);
+                  digitalWrite(ptt, HIGH);
+                }
+                if(gabung=="000000"){
+                  digitalWrite(ptt, HIGH);
+                  tmrpcm.play("REC006.wav");
+                  Serial.println("REC006.wav");  
+                }      
+                gabung="";            
+            }
+            
+      Serial.print(gabung);
+      Serial.println();
+      
+
+    }
+    
+    //TONE**************************
+    ToneRadar();
+    //TONE**************************
+
+    //warning
+    warning();
+}
+
+void readdtmf(){
+  indikator = digitalRead(7);
+  if(indikator==1){
+      readdtmf();
+  }
+}
+
+//TONE**************************************
+
+void playDTMF(uint8_t number, long duration)
+{
+  freq1.play(DTMF_freq1[number], duration);
+  freq2.play(DTMF_freq2[number], duration);
+}
+void warning()
+{
+  aliranAir=digitalRead(pinCekAliranAir);
+  radar = digitalRead(buttonPin);
+  //cek jika meluap
+  if(aliranAir==HIGH && radar==LOW){
+        //delay(600);
+        digitalWrite(ptt, LOW);
+        delay(1000);
+        tmrpcm.play("9.wav");
+        Serial.println("9.wav");
+        delay(1000);
+        //digitalWrite(ptt, HIGH);
+        //delay(1000);
+        matikanPompa();
+        delay(10000);
+  }
+}
+void hidupkanPompa()
+{
+        digitalWrite(ptt, LOW);
+        delay(800); 
+        int i;
+        uint8_t phone_number[] = { 1,1,1,10 };
+      
+        for(i = 0; i < sizeof(phone_number); i ++)
+        {
+         // Serial.print(phone_number[i], 10);
+          //Serial.print(' ');
+          playDTMF(phone_number[i], 900);
+          delay(1000);
+        }
+        delay(1500);
+        digitalWrite(ptt, HIGH);
+        // Serial.println();
+        //delay(6000);      
+        delay(1);//crude form of button debouncing  
+}
+void matikanPompa()
+{
+        digitalWrite(ptt, LOW);
+        delay(800); 
+        int i;
+        uint8_t phone_number[] = { 0,0,0,10 };
+      
+        for(i = 0; i < sizeof(phone_number); i ++)
+        {
+          //Serial.print(phone_number[i], 10);
+          //Serial.print(' ');
+          playDTMF(phone_number[i], 900);
+          delay(1000);
+        }
+        delay(1500);
+        digitalWrite(ptt, HIGH);
+        //Serial.println();
+        //delay(6000);      
+        delay(1);//crude form of button debouncing  
+}
+void ToneRadar()
+{
+    currentState = digitalRead(buttonPin);
+    if (currentState == HIGH && lastState == LOW){//if button has just been pressed
+        digitalWrite(ptt, LOW);
+        delay(800); 
+        int i;
+        uint8_t phone_number[] = { 1,1,1,10 };
+      
+        for(i = 0; i < sizeof(phone_number); i ++)
+        {
+         // Serial.print(phone_number[i], 10);
+          //Serial.print(' ');
+          playDTMF(phone_number[i], 900);
+          delay(1000);
+        }
+        delay(1500);
+        digitalWrite(ptt, HIGH);
+       // Serial.println();
+        //delay(6000);      
+      delay(1);//crude form of button debouncing
+    } else if(currentState == LOW && lastState == HIGH){
+        digitalWrite(ptt, LOW);
+        delay(800); 
+        int i;
+        uint8_t phone_number[] = { 0,0,0,10 };
+      
+        for(i = 0; i < sizeof(phone_number); i ++)
+        {
+          //Serial.print(phone_number[i], 10);
+          //Serial.print(' ');
+          playDTMF(phone_number[i], 900);
+          delay(1000);
+        }
+        delay(1500);
+        digitalWrite(ptt, HIGH);
+        //Serial.println();
+        //delay(6000);      
+      delay(1);//crude form of button debouncing
+    }
+    lastState = currentState;
+}
+//TONE**************************************
