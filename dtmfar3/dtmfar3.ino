@@ -132,12 +132,23 @@ void loop()
             if (vala==HIGH && valb==HIGH && valc==LOW && vald==LOW) { // cek jika dtmf di pencet char #
                 if(gabung=="1"){ //jika char 1 lakukan berikut
                   //delay(600);
-                  digitalWrite(ptt, LOW);// aktifkan ptt ht / transmit
-                  delay(1000);
-                  tmrpcm.play("10.wav");
-                  Serial.println("10.wav");
-                  delay(1000);
-                  digitalWrite(ptt, HIGH);
+                  aliranAir=analogRead(pinCekAliranAir); 
+                  if(aliranAir > 1010){
+                      digitalWrite(ptt, LOW);// aktifkan ptt ht / transmit
+                      delay(1000);
+                      tmrpcm.play("msnhd.wav");
+                      Serial.println("msnhd.wav");
+                      delay(2000);
+                      digitalWrite(ptt, HIGH);                     
+                  }else if(aliranAir < 1010){
+                      digitalWrite(ptt, LOW);// aktifkan ptt ht / transmit
+                      delay(1000);
+                      tmrpcm.play("msnmt.wav");
+                      Serial.println("msnmt.wav");
+                      delay(2000);
+                      digitalWrite(ptt, HIGH);                  
+                  }
+                  
                 }
                 if(gabung=="000000"){ //jika char 1 lakukan berikut
                   digitalWrite(ptt, HIGH);// deactive ptt ht / standby
@@ -179,20 +190,20 @@ void warning()
 {
   aliranAir=analogRead(pinCekAliranAir); // baca sensor aliran air 
   radar = analogRead(buttonPin); // baca sensor radar
-  //Serial.println(aliranAir);
- // Serial.println(radar);
-  //delay(100);
+  Serial.println(aliranAir);
+  Serial.println(radar);
+  delay(100);
  if(aliranAir > 1010 && radar < 1010){ // jika meluap maka matikan pompa
         //delay(600);
         digitalWrite(ptt, LOW);
         delay(1000);
-        tmrpcm.play("1.wav");
+        tmrpcm.play("mlmn.wav");
         //Serial.println("mesin mati.wav");
-        delay(1000);
+        delay(5000);
         //delay(1000);
         matikanPompa(); // memanggil fungsi matikan pompa
         digitalWrite(ptt, HIGH);
-        delay(1500);
+        delay(15000);
   }
   
   //cek jika kosong
@@ -200,21 +211,22 @@ void warning()
         //delay(600);
         digitalWrite(ptt, LOW); 
         delay(1000);
-        tmrpcm.play("2.wav");
+        tmrpcm.play("ksmn.wav");
+        
         //Serial.println("mesin menyala.wav");
-        delay(1000);
+        delay(5000);
         //delay(1000);
         hidupkanPompa();  // memanggil fungsi hidupkan pompa
         digitalWrite(ptt, HIGH);
-        delay(1500);
+        delay(15000);
 
   }
 }
 void hidupkanPompa()
 {
     Wire.onRequest(requestEventhidup);
-    Serial.println("menyalaaaaa.wav");
-    delay(4000);
+    Serial.println("hpmp.wav");
+    delay(5000);
     Wire.onRequest(requestEventstnby);
 }
 void requestEventhidup()
@@ -232,8 +244,8 @@ void requestEventstnby()
 void matikanPompa()
 {
     Wire.onRequest(requestEventmati);
-    Serial.println("matiiiiii.wav");
-    delay(4000);
+    Serial.println("mpmp.wav");
+    delay(5000);
     Wire.onRequest(requestEventstnby);
 }
 void ToneRadar()

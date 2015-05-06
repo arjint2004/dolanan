@@ -59,6 +59,7 @@ void loop()
           playDTMF(phone_number[i], 900);
           delay(1000);
         }  
+        delay(2000);
   }
 
   if(gabung=="hidupp"){
@@ -72,6 +73,7 @@ void loop()
           playDTMF(phone_number[i], 900);
           delay(1000);
         }  
+        delay(2000);
   }  
   //delay(300);
   /*currentState = digitalRead(buttonPin);
