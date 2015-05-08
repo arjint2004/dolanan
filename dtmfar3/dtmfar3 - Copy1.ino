@@ -3,7 +3,7 @@
 #define SD_ChipSelectPin 10  //using digital pin 4 on arduino nano 328
 #include <TMRpcm.h>           //  also need to include this library...// library untuk play file wav dari sdcard
 #include <SPI.h>			  
-#include <Wire.h>
+
 TMRpcm tmrpcm;   // create an object for use in this sketch // mengambil object dari library <TMRpcm.h> 
 //char mychar;
 //----------------------------------------------
@@ -31,12 +31,12 @@ String gabung(16);
 #include <Tone.h>
 
 int ptt=8; // pin untuk mengaktifkan ptt pesawat 2meter / HT
-int buttonPin = 1; // pin yang membaca keadaan radar switch / pelampung bak air
-int pinCekAliranAir = 2; // pin untuk membaca keadaan aliran air dari pompa (sensor keadaan pompa hidup/mati)
+int buttonPin = 0; // pin yang membaca keadaan radar switch / pelampung bak air
+int pinCekAliranAir = 1; // pin untuk membaca keadaan aliran air dari pompa (sensor keadaan pompa hidup/mati)
 int aliranAir; // variable untuk menampung data dari sensor aliran air pipa transmisi dari pompa
 int radar; //variable untuk menampung data dari sensor pelampung/radar
-int currentState = 200; //stroage for current button state 
-int lastState = 200; //storage for last button state
+boolean currentState = LOW; //stroage for current button state 
+boolean lastState = LOW; //storage for last button state
 
 Tone freq1;  // create an object for use in this sketch // mengambil object dari library <Tone.h>  untuk freq1
 Tone freq2;	 // create an object for use in this sketch // mengambil object dari library <Tone.h>  untuk freq2
@@ -48,7 +48,6 @@ const int DTMF_freq2[] = {  941,  697,  697,  697,  770,  770,  770,  852,  852,
 void setup() {
   //------------------------------------------------------------------------------------------------------------
   tmrpcm.speakerPin = 9; //speaker output untuk mengeluarkan suara dari file WAV
-  Wire.begin(2);
 
   Serial.begin(115200); //membuka komunikasi serial dengan baudrate 115200
   if (!SD.begin(SD_ChipSelectPin)) {  // see if the card is present and can be initialized:
@@ -64,11 +63,14 @@ void setup() {
   pinMode(3, INPUT); // buat pin 3 sebagai input
   pinMode(4, INPUT); // buat pin 4 sebagai input
   pinMode(5, INPUT); // buat pin 5 sebagai input
-  pinMode(6, OUTPUT); // buat pin 5 sebagai input
+  pinMode(14, OUTPUT);
+  pinMode(15, OUTPUT);
+  digitalWrite(14, LOW);
+  digitalWrite(15, LOW);
   
   pinMode(7, INPUT);  // buat pin 7 sebagai input
-  pinMode(ptt, OUTPUT);  // buat pin 8 sebagai output
-  digitalWrite(ptt, HIGH); //membuat PIN 8 HIGH 
+  pinMode(8, OUTPUT);  // buat pin 7 sebagai output
+  digitalWrite(8, HIGH); //membuat PIN 8 HIGH 
   digitalWrite(7, LOW);//membuat PIN 8 LOW 
   //digitalWrite(buttonPin, LOW);
   //digitalWrite(pinCekAliranAir, LOW);
@@ -132,42 +134,12 @@ void loop()
             if (vala==HIGH && valb==HIGH && valc==LOW && vald==LOW) { // cek jika dtmf di pencet char #
                 if(gabung=="1"){ //jika char 1 lakukan berikut
                   //delay(600);
-                  aliranAir=analogRead(pinCekAliranAir); 
-                  radar = analogRead(buttonPin); // baca sensor radar
-
-                  if(aliranAir > 1010){
-                      digitalWrite(ptt, LOW);// aktifkan ptt ht / transmit
-                      delay(1000);
-                      tmrpcm.play("msnhd.wav");
-                      Serial.println("pengecekan mesin... hidup");
-                      delay(2000);
-                      digitalWrite(ptt, HIGH);                     
-                  }else if(aliranAir < 1010){
-                      digitalWrite(ptt, LOW);// aktifkan ptt ht / transmit
-                      delay(1000);
-                      tmrpcm.play("msnmt.wav");
-                      Serial.println("pengecekan mesin... mati");
-                      delay(2000);
-                      digitalWrite(ptt, HIGH);                  
-                  }
-                  //cek jika bak sedang mengisi
-                  /*if(aliranAir > 1010 && radar > 1010){
-                        digitalWrite(ptt, LOW);
-                        delay(1000);
-                        tmrpcm.play("mlmn.wav");
-                        Serial.println("kondisi bak sedang mengisi");
-                        delay(5000);
-                        digitalWrite(ptt, HIGH);
-                  }
-                  //cek jika standby / bak memenuhi stok air
-                  if(aliranAir < 1010 && radar < 1010){
-                        digitalWrite(ptt, LOW);
-                        delay(1000);
-                        tmrpcm.play("mlmn.wav");
-                        Serial.println("kondisi bak memenuhi stok air (tidak mengisi)");
-                        delay(5000);
-                        digitalWrite(ptt, HIGH);
-                  }*/
+                  digitalWrite(ptt, LOW);// aktifkan ptt ht / transmit
+                  delay(1000);
+                  tmrpcm.play("10.wav");
+                  Serial.println("10.wav");
+                  delay(1000);
+                  digitalWrite(ptt, HIGH);
                 }
                 if(gabung=="000000"){ //jika char 1 lakukan berikut
                   digitalWrite(ptt, HIGH);// deactive ptt ht / standby
@@ -182,7 +154,7 @@ void loop()
       
 
     }
-    Wire.onRequest(requestEventstnby);
+    
     //TONE**************************
     ToneRadar(); // cek pelampung apakah penuh atau kosong. jika penuh otomatis akan mematikan pompa . jika kosong otomatis menghidupkan pompa
     //TONE**************************
@@ -197,6 +169,7 @@ void readdtmf(){
       readdtmf();
   }
 }
+
 //TONE**************************************
 
 void playDTMF(uint8_t number, long duration)
@@ -209,82 +182,65 @@ void warning()
 {
   aliranAir=analogRead(pinCekAliranAir); // baca sensor aliran air 
   radar = analogRead(buttonPin); // baca sensor radar
-  //Serial.println(aliranAir);
-  //Serial.println(radar);
-  //delay(100);
- if(aliranAir > 1010 && radar < 1010){ // jika meluap maka matikan pompa
+  Serial.println("mesin mati.wav");
+  Serial.println("mesin mati.wav");
+  /*if(aliranAir==HIGH && radar==LOW){ // jika meluap maka matikan pompa
         //delay(600);
         digitalWrite(ptt, LOW);
         delay(1000);
-        tmrpcm.play("mlmn.wav");
-        Serial.println("kondisi bak penuh atau meluap");
-        delay(5000);
+        tmrpcm.play("mesin mati.wav");
+        Serial.println("mesin mati.wav");
+        delay(1000);
+        digitalWrite(ptt, HIGH);
         //delay(1000);
         matikanPompa(); // memanggil fungsi matikan pompa
-        digitalWrite(ptt, HIGH);
-        delay(15000);
+        delay(1500);
   }
-
+  
   //cek jika kosong
-  if(aliranAir < 1010 && radar > 1010){
+  if(aliranAir==LOW && radar==HIGH){
         //delay(600);
         digitalWrite(ptt, LOW); 
         delay(1000);
-        tmrpcm.play("ksmn.wav");
-        
-        Serial.println("kondisi bak kosong");
-        delay(5000);
+        tmrpcm.play("mesin menyala.wav");
+        Serial.println("mesin menyala.wav");
+        delay(1000);
+        digitalWrite(ptt, HIGH);
         //delay(1000);
         hidupkanPompa();  // memanggil fungsi hidupkan pompa
-        digitalWrite(ptt, HIGH);
-        delay(15000);
-
-  }
+        delay(1500);
+  }*/  
 }
 void hidupkanPompa()
 {
-    Wire.onRequest(requestEventhidup);
-    Serial.println("menghidupkan pompa");
-    delay(5000);
-    Wire.onRequest(requestEventstnby);
-}
-void requestEventhidup()
-{
-  Wire.write("hidupp");
-}
-void requestEventmati()
-{
-  Wire.write("matiii");
-}
-void requestEventstnby()
-{
-  Wire.write("stndby");
+      //14=high, 15=low ==>pompa hidup
+      
+      digitalWrite(14, HIGH);
+      digitalWrite(15, LOW);
+      tmrpcm.play("1.wav");
+      delay(1500);
+      
+      digitalWrite(14, LOW);
+      digitalWrite(15, LOW);      
 }
 void matikanPompa()
 {
-    Wire.onRequest(requestEventmati);
-    Serial.println("mematikan pompa");
-    delay(5000);
-    Wire.onRequest(requestEventstnby);
+      //14=low, 15=high ==>pompa mati
+      digitalWrite(14, LOW);
+      digitalWrite(15, HIGH);
+      tmrpcm.play("2.wav");
+      delay(1500);
+      
+      digitalWrite(14, LOW);
+      digitalWrite(15, LOW);  
 }
 void ToneRadar()
 {
-    currentState = analogRead(buttonPin); // baca keadaan radar
-    
-    if (currentState > 1010 && lastState < 1010){//jika radar on (HIGH) maka hidupkan pompa
-        Serial.println("level sensor kosong");
-        digitalWrite(ptt, LOW);
-        delay(1000);
+    currentState = digitalRead(buttonPin); // baca keadaan radar
+    if (currentState == HIGH && lastState == LOW){//jika radar on (HIGH) maka hidupkan pompa
         hidupkanPompa();
-        digitalWrite(ptt, HIGH);
-        delay(1500);       
-    } else if(currentState < 1010 && lastState > 1010){
-        Serial.println("level sensor penuh");
-        digitalWrite(ptt, LOW);
-        delay(1000);      
+    } else if(currentState == LOW && lastState == HIGH){
         matikanPompa();
-        digitalWrite(ptt, HIGH);
-        delay(1500);         
     }
     lastState = currentState;
 }

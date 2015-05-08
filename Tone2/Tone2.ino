@@ -26,8 +26,8 @@ void setup()
   pinMode(buttonPin, INPUT);//this time we will set the pin as INPUT
   pinMode(ptt, OUTPUT);
   Serial.begin(9600);
-  freq1.begin(11);
-  freq2.begin(12);
+  freq1.begin(6);
+  freq2.begin(7);
 }
 
 void playDTMF(uint8_t number, long duration)
