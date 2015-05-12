@@ -209,10 +209,10 @@ void warning()
 {
   aliranAir=analogRead(pinCekAliranAir); // baca sensor aliran air 
   radar = analogRead(buttonPin); // baca sensor radar
-  //Serial.println(aliranAir);
-  //Serial.println(radar);
-  //delay(100);
- if(aliranAir > 1010 && radar < 1010){ // jika meluap maka matikan pompa
+  Serial.println(aliranAir);
+  Serial.println(radar);
+  delay(100);
+ if(aliranAir > 500 && radar < 500){ // jika meluap maka matikan pompa
         //delay(600);
         digitalWrite(ptt, LOW);
         delay(1000);
@@ -226,7 +226,7 @@ void warning()
   }
 
   //cek jika kosong
-  if(aliranAir < 1010 && radar > 1010){
+  if(aliranAir < 500 && radar > 1010){
         //delay(600);
         digitalWrite(ptt, LOW); 
         delay(1000);
@@ -271,14 +271,14 @@ void ToneRadar()
 {
     currentState = analogRead(buttonPin); // baca keadaan radar
     
-    if (currentState > 1010 && lastState < 1010){//jika radar on (HIGH) maka hidupkan pompa
+    if (currentState > 1010 && lastState < 500){//jika radar on (HIGH) maka hidupkan pompa
         Serial.println("level sensor kosong");
         digitalWrite(ptt, LOW);
         delay(1000);
         hidupkanPompa();
         digitalWrite(ptt, HIGH);
         delay(1500);       
-    } else if(currentState < 1010 && lastState > 1010){
+    } else if(currentState < 500 && lastState > 1010){
         Serial.println("level sensor penuh");
         digitalWrite(ptt, LOW);
         delay(1000);      

@@ -19,13 +19,13 @@ String gabung(16);
 
 void setup() {
   //------------------------------------------------------------------------------------------------------------
-  tmrpcm.speakerPin = 9; //11 on Mega, 9 on Uno, Nano, etc
+  //tmrpcm.speakerPin = 9; //11 on Mega, 9 on Uno, Nano, etc
 
   Serial.begin(115200);
-  if (!SD.begin(SD_ChipSelectPin)) {  // see if the card is present and can be initialized:
+  /*if (!SD.begin(SD_ChipSelectPin)) {  // see if the card is present and can be initialized:
     Serial.println("SD fail");  
     return;   // don't do anything more if not
-  }
+  }*/
   ///tmrpcm.play("REC006.wav"); //the sound file "music" will play each time the arduino powers up, or is reset
   ///Serial.println("REC006.wav");  
   //-----------------------------------------------------------------------------------------------------------
@@ -40,8 +40,8 @@ void setup() {
   
   pinMode(7, INPUT);
   pinMode(8, OUTPUT);
-  digitalWrite(8, LOW);
-  digitalWrite(7, LOW);
+  digitalWrite(8, HIGH);
+  digitalWrite(7, HIGH);
 }
 
 void loop()
@@ -94,18 +94,18 @@ void loop()
       
       
             if (vala==HIGH && valb==HIGH && valc==LOW && vald==LOW) {
-                if(gabung=="111111"){
-                  delay(1000);
-                  digitalWrite(8, HIGH);
-                  tmrpcm.play("REC006.wav");
-                  Serial.println("REC006.wav");
-                  delay(15000);
+                if(gabung=="111"){
+                  //delay(1000);
                   digitalWrite(8, LOW);
+                  //tmrpcm.play("REC006.wav");
+                  Serial.println("pompa hidup");
+                  //delay(15000);
+                  //digitalWrite(8, LOW);
                 }
-                if(gabung=="000000"){
-                  digitalWrite(8, LOW);
-                  tmrpcm.play("REC006.wav");
-                  Serial.println("REC006.wav");  
+                if(gabung=="000"){
+                  digitalWrite(8, HIGH);
+                  //tmrpcm.play("REC006.wav");
+                  Serial.println("POMPA MATI");  
                 }      
                 gabung="";            
             }
