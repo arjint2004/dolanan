@@ -275,7 +275,7 @@ void ToneRadar()
 {
 
     currentState = analogRead(buttonPin); // baca keadaan radar
-    delay(1000); 
+    
     if (currentState > 1010 && lastState < 500){//jika radar on (HIGH) maka hidupkan pompa
         Serial.println("level sensor kosong");
         digitalWrite(ptt, LOW);
@@ -294,6 +294,7 @@ void ToneRadar()
         
         //warning
         warning(); // cek jika meluap/ kosong dan pompa tidak bisa diperinttah maka kirim warning ke ht operator
+        delay(200); 
     }
     lastState = currentState;
 }
