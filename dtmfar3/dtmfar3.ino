@@ -187,8 +187,6 @@ void loop()
     ToneRadar(); // cek pelampung apakah penuh atau kosong. jika penuh otomatis akan mematikan pompa . jika kosong otomatis menghidupkan pompa
     //TONE**************************
 
-    //warning
-    warning(); // cek jika meluap/ kosong dan pompa tidak bisa diperinttah maka kirim warning ke ht operator
 }
 
 void readdtmf(){
@@ -211,7 +209,7 @@ void warning()
   radar = analogRead(buttonPin); // baca sensor radar
   Serial.println(aliranAir);
   Serial.println(radar);
-  delay(100);
+
  if(aliranAir > calibrateAir && radar < calibrateAir){ // jika meluap maka matikan pompa
         //delay(600);
         digitalWrite(ptt, LOW);
@@ -246,7 +244,10 @@ void hidupkanPompa()
     Wire.onRequest(requestEventhidup);
     Serial.println("menghidupkan pompa");
     delay(5000);
+    tmrpcm.play("hpmpa.wav");
     Wire.onRequest(requestEventstnby);
+    delay(3000);
+   
 }
 void requestEventhidup()
 {
@@ -265,26 +266,34 @@ void matikanPompa()
     Wire.onRequest(requestEventmati);
     Serial.println("mematikan pompa");
     delay(5000);
+    tmrpcm.play("mpmpa.wav");
     Wire.onRequest(requestEventstnby);
+    delay(3000);
+    
 }
 void ToneRadar()
 {
+
     currentState = analogRead(buttonPin); // baca keadaan radar
-    
+    delay(1000); 
     if (currentState > 1010 && lastState < 500){//jika radar on (HIGH) maka hidupkan pompa
         Serial.println("level sensor kosong");
         digitalWrite(ptt, LOW);
         delay(1000);
         hidupkanPompa();
         digitalWrite(ptt, HIGH);
-        delay(1500);       
+        delay(15000);       
     } else if(currentState < 500 && lastState > 1010){
         Serial.println("level sensor penuh");
         digitalWrite(ptt, LOW);
         delay(1000);      
         matikanPompa();
         digitalWrite(ptt, HIGH);
-        delay(1500);         
+        delay(15000);         
+    }else{
+        
+        //warning
+        warning(); // cek jika meluap/ kosong dan pompa tidak bisa diperinttah maka kirim warning ke ht operator
     }
     lastState = currentState;
 }
