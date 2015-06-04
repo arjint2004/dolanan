@@ -37,7 +37,7 @@ int aliranAir; // variable untuk menampung data dari sensor aliran air pipa tran
 int radar; //variable untuk menampung data dari sensor pelampung/radar
 int currentState = 200; //stroage for current button state 
 int lastState = 200; //storage for last button state
-
+int calibrateAir=250;
 Tone freq1;  // create an object for use in this sketch // mengambil object dari library <Tone.h>  untuk freq1
 Tone freq2;	 // create an object for use in this sketch // mengambil object dari library <Tone.h>  untuk freq2
 
@@ -135,14 +135,14 @@ void loop()
                   aliranAir=analogRead(pinCekAliranAir); 
                   radar = analogRead(buttonPin); // baca sensor radar
 
-                  if(aliranAir > 1010){
+                  if(aliranAir > calibrateAir){
                       digitalWrite(ptt, LOW);// aktifkan ptt ht / transmit
                       delay(1000);
                       tmrpcm.play("msnhd.wav");
                       Serial.println("pengecekan mesin... hidup");
                       delay(2000);
                       digitalWrite(ptt, HIGH);                     
-                  }else if(aliranAir < 1010){
+                  }else if(aliranAir < calibrateAir){
                       digitalWrite(ptt, LOW);// aktifkan ptt ht / transmit
                       delay(1000);
                       tmrpcm.play("msnmt.wav");
@@ -151,7 +151,7 @@ void loop()
                       digitalWrite(ptt, HIGH);                  
                   }
                   //cek jika bak sedang mengisi
-                  /*if(aliranAir > 1010 && radar > 1010){
+                  /*if(aliranAir > calibrateAir && radar > 1010){
                         digitalWrite(ptt, LOW);
                         delay(1000);
                         tmrpcm.play("mlmn.wav");
@@ -160,7 +160,7 @@ void loop()
                         digitalWrite(ptt, HIGH);
                   }
                   //cek jika standby / bak memenuhi stok air
-                  if(aliranAir < 1010 && radar < 1010){
+                  if(aliranAir < calibrateAir && radar < 1010){
                         digitalWrite(ptt, LOW);
                         delay(1000);
                         tmrpcm.play("mlmn.wav");
@@ -212,7 +212,7 @@ void warning()
   Serial.println(aliranAir);
   Serial.println(radar);
   delay(100);
- if(aliranAir > 500 && radar < 500){ // jika meluap maka matikan pompa
+ if(aliranAir > calibrateAir && radar < calibrateAir){ // jika meluap maka matikan pompa
         //delay(600);
         digitalWrite(ptt, LOW);
         delay(1000);
@@ -226,7 +226,7 @@ void warning()
   }
 
   //cek jika kosong
-  if(aliranAir < 500 && radar > 1010){
+  if(aliranAir < calibrateAir && radar > calibrateAir){
         //delay(600);
         digitalWrite(ptt, LOW); 
         delay(1000);
