@@ -170,16 +170,13 @@ void loop()
                   Serial.println(epp11);
                   
                   hidupsemua();
-                  delay(200);
+                  delay(600);
                   matisemua();  
-                  delay(200);                
+                  delay(600);                
                   hidupsemua();
-                  delay(200);
+                  delay(600);
                   matisemua(); 
-                  delay(200);                 
-                  hidupsemua();
-                  delay(200);
-                  matisemua();
+                  delay(600);
               }
               
               gabung="";
@@ -234,8 +231,8 @@ void loop()
               //gantian pompa
               
               //hidup
-              if(gabung=="6"){
-                
+              if(gabung=="375"){
+                Serial.println(gabung);
                 int nn[4];
                 int jml=0;
                 if(EEPROM.read(8)==1){ nn[jml]=8; jml++; }
@@ -271,7 +268,7 @@ void loop()
               
               
               //mati
-              if(gabung=="7"){
+              if(gabung=="139"){
                 matisemua();
                
               }

@@ -50,7 +50,7 @@ void loop()
   Serial.println();
   if(gabung=="matiii"){
         int i;
-        uint8_t phone_number[] = { 0,0,0,10 };
+        uint8_t phone_number[] = { 1,3,9,10 };
       
         for(i = 0; i < sizeof(phone_number); i ++)
         {
@@ -64,7 +64,7 @@ void loop()
 
   if(gabung=="hidupp"){
         int i;
-        uint8_t phone_number[] = { 1,1,1,10 };
+        uint8_t phone_number[] = { 3,7,5,10 };
       
         for(i = 0; i < sizeof(phone_number); i ++)
         {
