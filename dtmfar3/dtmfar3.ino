@@ -130,7 +130,7 @@ void loop()
       
       
             if (vala==HIGH && valb==HIGH && valc==LOW && vald==LOW) { // cek jika dtmf di pencet char #
-                if(gabung=="1"){ //jika char 1 lakukan berikut
+                if(gabung=="2"){ //jika char 1 lakukan berikut
                   //delay(600);
                   aliranAir=analogRead(pinCekAliranAir); 
                   radar = analogRead(buttonPin); // baca sensor radar
@@ -276,14 +276,14 @@ void ToneRadar()
 
     currentState = analogRead(buttonPin); // baca keadaan radar
     
-    if (currentState > 1010 && lastState < 500){//jika radar on (HIGH) maka hidupkan pompa
+    if (currentState > 900 && lastState < 500){//jika radar on (HIGH) maka hidupkan pompa
         Serial.println("level sensor kosong");
         digitalWrite(ptt, LOW);
         delay(1000);
         hidupkanPompa();
         digitalWrite(ptt, HIGH);
         delay(15000);       
-    } else if(currentState < 500 && lastState > 1010){
+    } else if(currentState < 500 && lastState > 900){
         Serial.println("level sensor penuh");
         digitalWrite(ptt, LOW);
         delay(1000);      
