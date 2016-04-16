@@ -231,7 +231,7 @@ void loop()
               //gantian pompa
               
               //hidup
-              if(gabung=="1"){
+              if(gabung=="375"){
                 Serial.println(gabung);
                 int nn[4];
                 int jml=0;
@@ -268,7 +268,7 @@ void loop()
               
               
               //mati
-              if(gabung=="0"){
+              if(gabung=="139"){
                 matisemua();
                
               }
